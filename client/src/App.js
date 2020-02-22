@@ -12,10 +12,12 @@ class App extends React.Component {
   };
 
   componentDidMount = () => {
+    this.setState({
+      heartbeatInterval: setInterval(this.sendHeartbeat, 100)
+    });
     setTimeout(() => {
       this.setState({
         clientStage: "playing",
-        heartbeatInterval: setInterval(this.sendHeartbeat, 100),
         trap: {
           type: "level",
           color: "#ffffff",
