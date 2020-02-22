@@ -64,7 +64,6 @@ paths:
                     state:
                       type: string
                       default: waiting
-  # TODO: Define endpoint
   /client/activate_trap:
     post:
       tags:
@@ -80,12 +79,15 @@ paths:
                   description: User UUID
                   type: string
                   format: uuid
+                spikes_direction:
+                  description: Direction to activate the trap in. (Only available for spikes)
+                  type: string
+                  enum: ["up", "down"]
       responses:
         "200":
           description: Activation worked
         "404":
           description: Bad input
-  # TODO: Define endpoint
   /game/create_trap:
     post:
       tags:
@@ -101,7 +103,6 @@ paths:
           description: Trap created
         "404":
           description: Bad input
-  # TODO: Define endpoint
   /game/destroy_trap:
     post:
       tags:
