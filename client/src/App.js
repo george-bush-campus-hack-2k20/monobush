@@ -2,11 +2,12 @@ import React from "react";
 import "./App.css";
 
 import { Spinner } from "./pages/Spinner";
-import { Trap } from "./pages/Trap"
+import { Trap } from "./pages/Trap";
 
 class App extends React.Component {
   state = {
     clientStage: "waiting",
+    heartbeatInterval: null,
     trap: null
   };
 
@@ -14,6 +15,7 @@ class App extends React.Component {
     setTimeout(() => {
       this.setState({
         clientStage: "playing",
+        heartbeatInterval: setInterval(this.sendHeartbeat, 100),
         trap: {
           type: "level",
           color: "#ffffff",
@@ -21,6 +23,10 @@ class App extends React.Component {
         }
       });
     }, 5000);
+  };
+
+  sendHeartbeat = () => {
+    console.log("This is a heartbeat");
   };
 
   renderPage = () => {
