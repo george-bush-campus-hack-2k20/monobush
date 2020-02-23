@@ -131,7 +131,7 @@ fn main() {
 			// we can assign them one
 			// unallocated traps
 			let trap_map_lock = &trap_map.lock().unwrap();
-			let mut valid_traps = trap_map_lock.iter().filter(|x| users_trap_map_lock.get_key_value(x.0).is_none());
+			let mut valid_traps = trap_map_lock.iter().filter(|x| users_trap_map_lock.values().any(|y| y == x.0));
 			match valid_traps.next() {
 			    Some(trap_id_trap) => {
 				// now create the user <-> trap mapping
