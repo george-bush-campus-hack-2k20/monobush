@@ -152,6 +152,7 @@ fn main() {
 		0 => {
 		    // they didn't exist before now, just create them
 		    users_lock.insert(client.id.clone(), UserSession::new(&client.id));
+            info!("Created new user uuid: {}", client.id);
             return response.send("{ \"state\": \"waiting\"}");
 		}
 		_ => ()
@@ -172,9 +173,10 @@ fn main() {
 	    let client = try_with!(response, request.json_as::<Trap>().map_err(|e| (StatusCode::BadRequest, e)));
 	    assert!(Uuid::parse_str(&client.id).is_ok());
 	    // looks good, fine, add it to the traps
+        info!("Creating trap with uuid: {}, name: {}", client.id, client.text);
 	    let mut trap_map_lock = trap_map.lock().unwrap();
 	    trap_map_lock.insert(client.id.clone(), client);
-	    response.set(StatusCode::from_u16(200));
+	    response.set(StatusCode::Ok);
 	    ""
 	}});
     }
@@ -191,7 +193,9 @@ fn main() {
             match user_trap_map_lock.get(&client.id) {
                 Some(trap_id) => {
                     let mut trap_map_lock = trap_map.lock().unwrap();
-                    trap_map_lock.get_mut(trap_id).unwrap().state = "true".to_string();
+                    l_handle = trap_map_lock.get_mut(trap_id).unwrap();
+                    l_handle.state = "true".to_string();
+                    info!("Activating trap uuid: {}, name: {}", l_handle.id, l_handle.text);
                 }
                 _ => (),
             }
@@ -233,5 +237,5 @@ fn main() {
         ""
 	}});
     }
-    server.listen("127.0.0.1:8080").unwrap();
+    server.listen("0.0.0.0:8080").unwrap();
 }
