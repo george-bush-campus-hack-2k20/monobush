@@ -1,6 +1,6 @@
 #![allow(dead_code,unused_imports)]
 #[macro_use] extern crate nickel;
-extern crate nickel_cors;
+use hyper::header::{AccessControlAllowOrigin, AccessControlAllowHeaders};
 use crate::nickel::{Nickel, HttpRouter, QueryString, status::StatusCode, MediaType};
 use std::sync::{Arc, Mutex, RwLock};
 use std::collections::HashMap;
@@ -50,6 +50,23 @@ struct Trap {
     text: String
 }
 
+fn enable_cors<'mw>(_req: &mut Request, mut res: Response<'mw>) -> MiddlewareResult<'mw> {
+    // Set appropriate headers
+    res.set(AccessControlAllowOrigin::Any);
+    res.set(AccessControlAllowHeaders(vec![
+        // Hyper uses the `unicase::Unicase` type to ensure comparisons are done
+        // case-insensitively. Here, we use `into()` to convert to one from a `&str`
+        // so that we don't have to import the type ourselves.
+        "Origin".into(),
+        "X-Requested-With".into(),
+        "Content-Type".into(),
+        "Accept".into(),
+    ]));
+
+    // Pass control to the next middleware
+    res.next_middleware()
+}
+
 fn main() {
     logging::setup().unwrap();
     // maps TRAPUUIDs to TRAPS
@@ -88,7 +105,7 @@ fn main() {
 	}});
     }
     let mut server = Nickel::new();
-    server.utilize(nickel_cors::enable_cors);
+    server.utilize(enable_cors);
 
     {
 	let trap_map = trap_map_master.clone();
@@ -96,9 +113,6 @@ fn main() {
 	let users = users_master.clone();
 	server.post("/client/heartbeat", middleware! { |request, mut response| {
 	    response.set(MediaType::Json);
-        response.headers_mut().set_raw("Access-Control-Allow-Origin", vec![b"*".to_vec()]);
-        response.headers_mut().set_raw("Access-Control-Allow-Methods", vec![b"*".to_vec()]);
-        response.headers_mut().set_raw("Access-Control-Allow-Headers", vec![b"Origin X-Requested-With Content-Type Accept".to_vec()]);
 	    // make sure they gave us a uuid
 	    let client = try_with!(response, request.json_as::<UuidRequest>().map_err(|e| (StatusCode::BadRequest, e)));
 	    assert!(Uuid::parse_str(&client.id).is_ok());
