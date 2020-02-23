@@ -82,6 +82,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "fern",
+ "hyper",
  "log 0.4.8",
  "nickel",
  "nickel_cors",
