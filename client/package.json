@@ -7,15 +7,19 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
+    "axios": "^0.19.2",
+    "node-sass": "^4.13.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-scripts": "3.4.0"
+    "react-scripts": "3.4.0",
+    "uuid": "^3.4.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "swagger-client-gen": "user_id=$(id -u); group_id=$(id -g); rm -rf api-client; chmod +x scripts/gen-http-client.sh; docker run -v \"$(pwd)/..\"/:/monobush -e \"HOST_USER_ID=$user_id\" -e \"HOST_GROUP_ID=$group_id\" -ti anapsix/alpine-java /monobush/client/scripts/gen-http-client.sh"
   },
   "eslintConfig": {
     "extends": "react-app"

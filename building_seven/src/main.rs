@@ -1,5 +1,6 @@
 #![allow(dead_code,unused_imports)]
 #[macro_use] extern crate nickel;
+extern crate nickel_cors;
 use crate::nickel::{Nickel, HttpRouter, QueryString, status::StatusCode, MediaType};
 use std::sync::{Arc, Mutex, RwLock};
 use std::collections::HashMap;
@@ -87,6 +88,7 @@ fn main() {
 	}});
     }
     let mut server = Nickel::new();
+    server.utilize(nickel_cors::enable_cors);
 
     {
 	let trap_map = trap_map_master.clone();
@@ -94,6 +96,9 @@ fn main() {
 	let users = users_master.clone();
 	server.post("/client/heartbeat", middleware! { |request, mut response| {
 	    response.set(MediaType::Json);
+        response.headers_mut().set_raw("Access-Control-Allow-Origin", vec![b"*".to_vec()]);
+        response.headers_mut().set_raw("Access-Control-Allow-Methods", vec![b"*".to_vec()]);
+        response.headers_mut().set_raw("Access-Control-Allow-Headers", vec![b"Origin X-Requested-With Content-Type Accept".to_vec()]);
 	    // make sure they gave us a uuid
 	    let client = try_with!(response, request.json_as::<UuidRequest>().map_err(|e| (StatusCode::BadRequest, e)));
 	    assert!(Uuid::parse_str(&client.id).is_ok());
@@ -117,7 +122,7 @@ fn main() {
 				return response.send(serde_json::to_string(trap_id_trap.1).unwrap());
 			    },
 			    None => {
-				return response.send("waiting");
+				return response.send("{ \"state\": \"waiting\"}");
 			    }
 			};
 		    }
@@ -130,7 +135,7 @@ fn main() {
 		0 => {
 		    // they didn't exist before now, just create them
 		    users_lock.insert(client.id.clone(), UserSession::new(&client.id));
-		    return response.send("heartbeat");
+            return response.send("{ \"state\": \"waiting\"}");
 		}
 		_ => ()
 	    };
@@ -178,5 +183,5 @@ fn main() {
 	    response.set(StatusCode::from_u16(200));
 	}});
     }
-    server.listen("127.0.0.1:3000").unwrap();
+    server.listen("127.0.0.1:8080").unwrap();
 }

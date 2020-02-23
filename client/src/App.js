@@ -1,34 +1,56 @@
 import React from "react";
 import "./App.css";
 
+import axios from "axios";
+import { v4 as genUUID } from "uuid";
+
 import { Spinner } from "./pages/Spinner";
-import { Trap } from "./pages/Trap";
+import { Trap } from "./pages/traps";
+
+var client = axios.create({
+  baseURL: "http://localhost:8080/",
+  timeout: 1000
+});
 
 class App extends React.Component {
   state = {
     clientStage: "waiting",
     heartbeatInterval: null,
-    trap: null
+    trap: null,
+    uuid: genUUID()
   };
 
   componentDidMount = () => {
     this.setState({
       heartbeatInterval: setInterval(this.sendHeartbeat, 100)
     });
-    setTimeout(() => {
+  };
+
+  sendHeartbeat = async () => {
+    let data;
+    try {
+      const response = await client.post("/client/heartbeat", {
+        body: { id: this.state.uuid },
+        mode: 'no-cors'
+      });
+      console.log(response);
+      data = response.data;
+    } catch (err) {
+      this.forceUpdate();
+    }
+    if (data.state === "ready") {
       this.setState({
         clientStage: "playing",
         trap: {
-          type: "level",
-          color: "#ffffff",
-          text: "Text"
+          type: data.trap,
+          color: data.color,
+          text: data.text
         }
       });
-    }, 5000);
-  };
-
-  sendHeartbeat = () => {
-    console.log("This is a heartbeat");
+    }
+    if (data.state === "heartbeat" && !data.ok) {
+      this.forceUpdate();
+    }
   };
 
   renderPage = () => {
