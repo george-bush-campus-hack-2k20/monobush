@@ -232,9 +232,11 @@ fn main() {
 	    assert!(Uuid::parse_str(&client.id).is_ok());
         // lol
 	    let mut trap_map_lock = trap_map.lock().unwrap();
-	    trap_map_lock.remove(&client.id);
-	    // also remove it if it's in the userid <-> trapid mapping
-	    response.set(StatusCode::Ok);
+        if trap_map_lock.get(&client.id).is_some() {
+            trap_map_lock.remove(&client.id);
+            // also remove it if it's in the userid <-> trapid mapping
+            response.set(StatusCode::Ok);
+        }
         ""
 	}});
     }
