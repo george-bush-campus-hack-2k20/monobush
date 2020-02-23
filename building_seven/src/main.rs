@@ -192,11 +192,11 @@ fn main() {
             let id = request.param("id").unwrap().to_string();
 	    let trap_map_lock = trap_map.lock().unwrap();
 	    let state = &trap_map_lock.get(&id).unwrap().state;
-	    if state == "activated" {
-		let oo = OutputThingInnit { activated: "true".to_string() };
-		return response.send(serde_json::to_string(&oo).unwrap());
-	    }
-	    ""
+	    let oo = match &state[..] {
+		"activated" => OutputThingInnit { activated: "true".to_string() },
+		_ => OutputThingInnit { activated: "false".to_string() },
+	    };
+	    serde_json::to_string(&oo).unwrap()
 	}});
 }
 
