@@ -111,6 +111,11 @@ fn main() {
     server.utilize(enable_cors);
 
     {
+        server.options("**", middleware! { |request, mut response| {
+            ""
+        }});
+    }
+    {
 	let trap_map = trap_map_master.clone();
 	let user_trap_map = user_trap_map_master.clone();
 	let users = users_master.clone();
