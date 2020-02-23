@@ -20,7 +20,7 @@ use std::thread;
 mod logging;
 
 
-const MAX_HEARTBEAT_INTERVAL: i64 = 2500; // in ms
+const MAX_HEARTBEAT_INTERVAL: i64 = 250000000000000000; // in ms
 const HEARTBEAT_CULL_INTERVAL: u64 = 100;  // "
 
 struct UserSession {
@@ -195,7 +195,7 @@ fn main() {
             match user_trap_map_lock.get(&client.id) {
                 Some(trap_id) => {
                     let mut trap_map_lock = trap_map.lock().unwrap();
-                    trap_map_lock.get_mut(trap_id).unwrap().state = "activated".to_string();
+                    trap_map_lock.get_mut(trap_id).unwrap().state = "true".to_string();
                 }
                 _ => (),
             }
@@ -214,11 +214,8 @@ fn main() {
             let id = request.param("id").unwrap().to_string();
 	    let trap_map_lock = trap_map.lock().unwrap();
 	    let state = &trap_map_lock.get(&id).unwrap().state;
-	    let oo = match &state[..] {
-		"activated" => OutputThingInnit { activated: "true".to_string() },
-		_ => OutputThingInnit { activated: "false".to_string() },
-	    };
-	    serde_json::to_string(&oo).unwrap()
+	    let o = OutputThingInnit { activated: state.to_string() };
+	    serde_json::to_string(&o).unwrap()
 	}});
 }
 
@@ -233,13 +230,11 @@ fn main() {
 	    let mut trap_map_lock = trap_map.lock().unwrap();
 	    trap_map_lock.remove(&client.id);
 	    // also remove it if it's in the userid <-> trapid mapping
-	    let uuid_to_remove = {
-		let user_trap_map_lock = user_trap_map.lock().unwrap();
-		let t_vec: Vec<&String> = user_trap_map_lock.iter().filter(|x| x.1 == &client.id).map(|x| x.0).collect();
-		t_vec[0].clone()
-	    };
-	    let mut user_trap_map_lock = user_trap_map.lock().unwrap();
-	    user_trap_map_lock.remove(&uuid_to_remove);
+	    // let uuid_to_remove = {
+	    // 	let user_trap_map_lock = user_trap_map.lock().unwrap();
+	    // 	let mut t_vec: Vec<&String> = user_trap_map_lock.iter().filter(|x| *x.1 == client.id).map(|x| x.0).collect();
+	    // 	t_vec.get(0).clone()
+	    // };
 	    response.set(StatusCode::from_u16(200));
 	}});
     }
