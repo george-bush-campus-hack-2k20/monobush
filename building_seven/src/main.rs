@@ -193,7 +193,7 @@ fn main() {
             match user_trap_map_lock.get(&client.id) {
                 Some(trap_id) => {
                     let mut trap_map_lock = trap_map.lock().unwrap();
-                    l_handle = trap_map_lock.get_mut(trap_id).unwrap();
+                    let mut l_handle = trap_map_lock.get_mut(trap_id).unwrap();
                     l_handle.state = "true".to_string();
                     info!("Activating trap uuid: {}, name: {}", l_handle.id, l_handle.text);
                 }
