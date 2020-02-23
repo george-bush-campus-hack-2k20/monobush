@@ -2,16 +2,24 @@ import React from "react";
 
 import { ArcadeButton } from "../../components/ArcadeButton";
 
-export const Spikes = ({ styles, text }) => {
+const activateTrap = (client, userId) => async () => {
+  return client.post("/client/activate_trap", {
+    id: userId
+  });
+};
+
+export const Spikes = ({ userId, client, styles, text }) => {
   return (
     <div id="controller" className="electricity" styles={styles}>
-    <p>Spikes</p>
+      <p>Spikes</p>
       <p>{text}</p>
+      {/*
       <ArcadeButton onClick={() => console.log("Clicked!")} />
       <p>
         <b>Drop 'em!</b>
       </p>
-      <ArcadeButton onClick={() => console.log("Clicked!")} />
+    */}
+      <ArcadeButton onClick={activateTrap(client, userId)} />
       <p>
         <b>Skewer 'em!</b>
       </p>

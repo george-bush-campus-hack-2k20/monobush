@@ -14,7 +14,7 @@
     "macExecutableFilename": "",
     "orientation": "landscape",
     "packageName": "com.example.gamename",
-    "projectFile": "/home/ioana/Desktop/proj/monobush/game/game.json",
+    "projectFile": "/home/kch/monobush/game/game.json",
     "scaleMode": "linear",
     "sizeOnStartupMode": "adaptWidth",
     "useExternalSourceFiles": false,
@@ -636,7 +636,7 @@
         "gridWidth": 32,
         "snap": true,
         "windowMask": false,
-        "zoomFactor": 0.712
+        "zoomFactor": 0.586
       },
       "objectsGroups": [],
       "variables": [],
@@ -744,12 +744,33 @@
           "locked": false,
           "name": "Spikes",
           "width": 391,
-          "x": 310,
-          "y": 0,
+          "x": 820,
+          "y": 2,
           "zOrder": 13,
           "numberProperties": [],
           "stringProperties": [],
-          "initialVariables": []
+          "initialVariables": [
+            {
+              "name": "doActivate",
+              "value": "0"
+            },
+            {
+              "name": "initialised",
+              "value": "0"
+            },
+            {
+              "name": "doRegister",
+              "value": "0"
+            },
+            {
+              "name": "doRemove",
+              "value": "0"
+            },
+            {
+              "name": "uuid",
+              "value": "fdd28371-2cea-43e9-b637-9649aa219ca2"
+            }
+          ]
         },
         {
           "angle": 0,
@@ -2243,14 +2264,12 @@
             {
               "type": {
                 "inverted": false,
-                "value": "CollisionNP"
+                "value": "Vitesse"
               },
               "parameters": [
-                "Bush",
                 "Spikes",
-                "",
-                "",
-                ""
+                ">",
+                "1"
               ],
               "subInstructions": []
             }
@@ -2287,14 +2306,6 @@
                     "",
                     ""
                   ],
-                  "subInstructions": []
-                },
-                {
-                  "type": {
-                    "inverted": false,
-                    "value": ""
-                  },
-                  "parameters": [],
                   "subInstructions": []
                 }
               ],
@@ -2471,6 +2482,158 @@
             }
           ],
           "events": []
+        },
+        {
+          "disabled": false,
+          "folded": false,
+          "type": "BuiltinCommonInstructions::Standard",
+          "conditions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "VarObjet"
+              },
+              "parameters": [
+                "Spikes",
+                "doActivate",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "actions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "AddForceAL"
+              },
+              "parameters": [
+                "Spikes",
+                "90",
+                "45",
+                "1"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "events": []
+        },
+        {
+          "disabled": false,
+          "folded": false,
+          "type": "BuiltinCommonInstructions::Standard",
+          "conditions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "Distance"
+              },
+              "parameters": [
+                "Spikes",
+                "Bush",
+                "2000",
+                ""
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "VarObjet"
+              },
+              "parameters": [
+                "Spikes",
+                "initialised",
+                "=",
+                "0"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "actions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "ModVarObjet"
+              },
+              "parameters": [
+                "Spikes",
+                "doRegister",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "ResetObjectTimer"
+              },
+              "parameters": [
+                "Spikes",
+                "\"spunk\""
+              ],
+              "subInstructions": []
+            }
+          ],
+          "events": []
+        },
+        {
+          "disabled": false,
+          "folded": false,
+          "type": "BuiltinCommonInstructions::Standard",
+          "conditions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "VarObjet"
+              },
+              "parameters": [
+                "Spikes",
+                "initialised",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "ObjectTimer"
+              },
+              "parameters": [
+                "Spikes",
+                "\"spunk\"",
+                "15"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "actions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "ModVarObjet"
+              },
+              "parameters": [
+                "Spikes",
+                "doRemove",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "events": []
+        },
+        {
+          "disabled": false,
+          "folded": false,
+          "type": "BuiltinCommonInstructions::JsCode",
+          "inlineCode": "var servoid = 'http://localhost:3000'\n\nobjects.forEach(q => {\n    var g = z => q.getVariables().get(z).getAsNumber();\n    var r = z => q.getVariables().get(z).getAsString();\n    var s = (z, p) => q.getVariables().get(z).setNumber(p);\n    if(g('doRegister')){\n        fetch('http://127.0.0.1:8080/game/create_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid'),\n                state: 'off',\n                trap: 'spikes',\n                color: '#ff5733',\n                text: 'Spikes'\n            })\n        }).then(function(response) {\n            s('doRegister', 0)\n            s('initialised', 1)\n            //alert(JSON.stringify(response.json()));\n        }).catch(function(e){\n            //alert(e.message);\n        })\n    }\n})",
+          "parameterObjects": "Spikes",
+          "useStrict": true
         }
       ],
       "layers": [

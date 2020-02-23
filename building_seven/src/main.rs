@@ -1,6 +1,8 @@
 #![allow(dead_code,unused_imports)]
 #[macro_use] extern crate nickel;
-extern crate nickel_cors;
+use hyper::header::{AccessControlAllowOrigin, AccessControlAllowHeaders, AccessControlAllowMethods};
+use hyper::method::Method;
+use nickel::{Request, Response, MiddlewareResult};
 use crate::nickel::{Nickel, HttpRouter, QueryString, status::StatusCode, MediaType};
 use std::sync::{Arc, Mutex, RwLock};
 use std::collections::HashMap;
@@ -35,7 +37,6 @@ impl UserSession {
 	}
     }
 }
-
 // any request that only takes a uuid uses the following
 #[derive(Serialize, Deserialize)]
 struct UuidRequest {
@@ -48,6 +49,24 @@ struct Trap {
     trap: String,
     color: String,
     text: String
+}
+
+fn enable_cors<'mw>(_req: &mut Request, mut res: Response<'mw>) -> MiddlewareResult<'mw> {
+    // Set appropriate headers
+    res.set(AccessControlAllowOrigin::Any);
+    res.set(AccessControlAllowMethods(vec![Method::Get, Method::Post]));
+    res.set(AccessControlAllowHeaders(vec![
+        // Hyper uses the `unicase::Unicase` type to ensure comparisons are done
+        // case-insensitively. Here, we use `into()` to convert to one from a `&str`
+        // so that we don't have to import the type ourselves.
+        "Origin".into(),
+        "X-Requested-With".into(),
+        "Content-Type".into(),
+        "Accept".into(),
+    ]));
+
+    // Pass control to the next middleware
+    res.next_middleware()
 }
 
 fn main() {
@@ -88,17 +107,19 @@ fn main() {
 	}});
     }
     let mut server = Nickel::new();
-    server.utilize(nickel_cors::enable_cors);
+    server.utilize(enable_cors);
 
+    {
+        server.options("**", middleware! { |request, mut response| {
+            ""
+        }});
+    }
     {
 	let trap_map = trap_map_master.clone();
 	let user_trap_map = user_trap_map_master.clone();
 	let users = users_master.clone();
 	server.post("/client/heartbeat", middleware! { |request, mut response| {
 	    response.set(MediaType::Json);
-        response.headers_mut().set_raw("Access-Control-Allow-Origin", vec![b"*".to_vec()]);
-        response.headers_mut().set_raw("Access-Control-Allow-Methods", vec![b"*".to_vec()]);
-        response.headers_mut().set_raw("Access-Control-Allow-Headers", vec![b"Origin X-Requested-With Content-Type Accept".to_vec()]);
 	    // make sure they gave us a uuid
 	    let client = try_with!(response, request.json_as::<UuidRequest>().map_err(|e| (StatusCode::BadRequest, e)));
 	    assert!(Uuid::parse_str(&client.id).is_ok());
@@ -163,8 +184,47 @@ fn main() {
     }
 
     {
-	let trap_map = trap_map_master.clone();
-	let user_trap_map = user_trap_map_master.clone();
+        let trap_map = trap_map_master.clone();
+        let user_trap_map = user_trap_map_master.clone();
+        server.post("/client/activate_trap", middleware! { |request, mut response| {
+            response.set(MediaType::Json);
+            // clientid
+            let client = try_with!(response, request.json_as::<UuidRequest>().map_err(|e| (StatusCode::BadRequest, e)));
+            // get trap of the client
+            let user_trap_map_lock = user_trap_map.lock().unwrap();
+            match user_trap_map_lock.get(&client.id) {
+                Some(trap_id) => {
+                    let mut trap_map_lock = trap_map.lock().unwrap();
+                    trap_map_lock.get_mut(trap_id).unwrap().state = "activated".to_string();
+                }
+                _ => (),
+            }
+            ""
+        }});
+    }
+    
+    {
+
+        #[derive(Serialize, Deserialize)]
+        struct OutputThingInnit {
+            activated: String
+        }
+        let trap_map = trap_map_master.clone();
+        server.get("/game/trap_status/:id", middleware! { |request, mut response| {
+            let id = request.param("id").unwrap().to_string();
+	    let trap_map_lock = trap_map.lock().unwrap();
+	    let state = &trap_map_lock.get(&id).unwrap().state;
+	    let oo = match &state[..] {
+		"activated" => OutputThingInnit { activated: "true".to_string() },
+		_ => OutputThingInnit { activated: "false".to_string() },
+	    };
+	    serde_json::to_string(&oo).unwrap()
+	}});
+}
+
+{
+    let trap_map = trap_map_master.clone();
+    let user_trap_map = user_trap_map_master.clone();
 	server.post("/game/destroy_trap", middleware! { |request, mut response| {
 	    response.set(MediaType::Json);
 	    response.set(StatusCode::NotFound);
