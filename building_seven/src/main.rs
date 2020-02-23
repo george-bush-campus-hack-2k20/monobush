@@ -106,7 +106,7 @@ fn main() {
     server.utilize(enable_cors);
 
     {
-        server.options("**", middleware! { |request, mut response| {
+        server.options("**", middleware! { |_, mut response| {
             ""
         }});
     }
@@ -221,7 +221,6 @@ fn main() {
 
 {
     let trap_map = trap_map_master.clone();
-    let user_trap_map = user_trap_map_master.clone();
 	server.post("/game/destroy_trap", middleware! { |request, mut response| {
 	    response.set(MediaType::Json);
 	    response.set(StatusCode::NotFound);

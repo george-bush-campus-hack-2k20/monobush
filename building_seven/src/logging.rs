@@ -15,7 +15,7 @@ pub fn setup() -> Result<(), log::SetLoggerError> {
     // Add blanket level filter -
 	.level(log::LevelFilter::Debug)
     // - and per-module overrides
-	.level_for("hyper", log::LevelFilter::Info)
+	.level_for("hyper", log::LevelFilter::Error)
     // Output to stdout, files, and other Dispatch configurations
 	.chain(std::io::stdout())
     // Apply globally
