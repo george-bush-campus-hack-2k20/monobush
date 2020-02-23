@@ -28,7 +28,13 @@ impl UserSession {
     }
 }
 
-struct Trap {
+#[derive(Serialize, Deserialize)]
+struct TrapReq {
+    id: String,
+    state: String,
+    trap: String,
+    color: String,
+    text: String
 }
 
 #[derive(Serialize, Deserialize)]
@@ -44,7 +50,7 @@ fn main() {
     let trap_pool: RwLock<Vec<Trap>> = RwLock::new(Vec::new());
     let trap_allocated: RwLock<HashMap<Uuid, Trap>> = RwLock::new(HashMap::new());
     info!("Trap pool(s) initialised");
-    server.post("/heartbeat", middleware! { |request, mut response| {
+    server.post("/client/heartbeat", middleware! { |request, mut response| {
 	info!("Got heartbeat request!");
 	response.set(StatusCode::NoContent);
 	response.set(MediaType::Json);
@@ -75,10 +81,27 @@ fn main() {
     }});
     // uuid, type, color, name
 
+    server.post("/client/activate_trap", middleware! { |request, mut response| {
+    }});
+
+    server.post("/game/create_trap", middleware! { |request, mut response| {
+	// check the req
+	let trap_req = try_with!(response, request.json_as::<TrapReq>().map_err(|e| (StatusCode::BadRequest, e)));
+	response.set(MediaType::Json);
+    }});
+
+    server.post("/game/destroy_trap", middleware! { |request, mut response| {
+    }});
+
+    server.get("/game/trap_status/:id", middleware! { |request, mut response| {
+	if let Some(id) = request.param("id") {
+	    // attempt to get the trap info
+	}
+    }});
 
     // 200 if I have a trap
     // 204 if none avaliable
-    server.post("/request_trap", middleware! { |request, mut response| {
+    server.post("/client/request_trap", middleware! { |request, mut response| {
 	response.set(MediaType::Json);
 	let client = try_with!(response, request.json_as::<ClientPayload>().map_err(|e| (StatusCode::BadRequest, e)));
 	let uuid = Uuid::parse_str(&client.id).unwrap();
