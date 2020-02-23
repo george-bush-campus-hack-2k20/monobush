@@ -83,22 +83,18 @@ fn main() {
 	let users = users_master.clone();
 	let user_trap_map = user_trap_map_master.clone();
 	thread::spawn(move || { loop {
-	    debug!("Entering cull loop...");
 	    {
 		let c_time = Utc::now().timestamp_millis();
 		let mut users_lock = users.lock().unwrap();
 		let mut user_trap_map_lock = user_trap_map.lock().unwrap();
 		let mut to_remove_queue = Vec::new();
 		for user in users_lock.iter().map(|x| x.1) {
-		    debug!("Considering UUID {}", user.uuid);
 		    if c_time - user.last_heartbeat.timestamp_millis() > MAX_HEARTBEAT_INTERVAL {
 			// remove them
 			to_remove_queue.push(user.uuid.clone());
 		    }
 		}
-		debug!("UUIDs to be culled: {:?}", to_remove_queue);
 		for to_remove in to_remove_queue {
-		    debug!("Deleting UUID {}", to_remove);
 		    users_lock.remove(&to_remove);
 		    user_trap_map_lock.remove(&to_remove);
 		}
