@@ -1,0 +1,196 @@
+openapi: "3.0.0"
+info:
+  description: "Give cheese!"
+  version: "1.0.0"
+  title: "george bush."
+  license:
+    name: "MIT"
+    url: "https://github.com/george-bush-campus-hack-2k20/monobush/blob/master/LICENSE"
+servers:
+  - url: http://localhost:3000
+paths:
+  /client/heartbeat:
+    post:
+      tags:
+      - client
+      summary: Check the game state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Current state of the game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/heartbeat_responses'
+  /client/request_trap:
+      post:
+        tags:
+        - client
+        summary: Request trap assignment
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    description: User UUID (self-asigned)
+                    type: string
+                    format: uuid
+        responses:
+          "200":
+            description: Data of the trap created by the game
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/trapData'
+          "204":
+            description: Returned if the game is not ready to create the trap
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    state:
+                      type: string
+                      default: waiting
+  /client/activate_trap:
+    post:
+      tags:
+      - client
+      summary: Activate trap
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: User UUID
+                  type: string
+                  format: uuid
+                spikes_direction:
+                  description: Direction to activate the trap in. (Only available for spikes)
+                  type: string
+                  enum: ["up", "down"]
+      responses:
+        "200":
+          description: Activation worked
+        "404":
+          description: Bad input
+  /game/create_trap:
+    post:
+      tags:
+      - game
+      summary: Create a new trap
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/trapData"
+      responses:
+        "200":
+          description: Trap created
+        "404":
+          description: Bad input
+  /game/destroy_trap:
+    post:
+      tags:
+      - game
+      summary: Destroy trap after it has been used or goes off-screen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: The id of the trap
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Trap destroyed
+        "404":
+          description: Trap does not exist
+  /game/trap_status/{id}:
+    get:
+      tags:
+      - game
+      summary: Get activation status of a trap
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+        description: ID of the trap
+      responses:
+        "200":
+          description: Status of the trap
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activated:
+                    type: boolean
+                    example: true
+components:
+  schemas:
+    waiting:
+      type: object
+      properties:
+        id:
+          type: string
+          example: waiting
+    heartbeat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          example: heartbeat
+        ok:
+          type: boolean
+          example: true
+    trapData:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          default: ready
+        trap:
+          $ref: '#/components/schemas/traps'
+        color:
+          type: string
+          description: RGB color of the trap
+          example: "#ffffff"
+        text:
+          type: string
+          description: Label of the created trap
+          example: Scary trap
+    traps:
+      type: string
+      enum: [spikes, pendulum, electricity]
+    heartbeat_responses:
+      oneOf:
+        - $ref: '#/components/schemas/waiting'
+        - $ref: '#/components/schemas/trapData'
+        - $ref: '#/components/schemas/heartbeat'
