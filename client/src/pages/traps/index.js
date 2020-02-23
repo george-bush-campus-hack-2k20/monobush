@@ -13,6 +13,6 @@ export const Trap = ({ trapData, client, userId }) => {
     color
   };
 
-  return <Spikes client={client} styles={styles} text={text} />;
+  return <Spikes userId={userId} client={client} styles={styles} text={text} />;
   
 };

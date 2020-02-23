@@ -636,7 +636,7 @@
         "gridWidth": 32,
         "snap": true,
         "windowMask": false,
-        "zoomFactor": 0.586
+        "zoomFactor": 0.322
       },
       "objectsGroups": [],
       "variables": [],
@@ -769,6 +769,10 @@
             {
               "name": "uuid",
               "value": "fdd28371-2cea-43e9-b637-9649aa219ca2"
+            },
+            {
+              "name": "pufferfish",
+              "value": "0"
             }
           ]
         },
@@ -2605,7 +2609,20 @@
               "parameters": [
                 "Spikes",
                 "\"spunk\"",
-                "15"
+                "3"
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "VarObjet"
+              },
+              "parameters": [
+                "Spikes",
+                "pufferfish",
+                "=",
+                "0"
               ],
               "subInstructions": []
             }
@@ -2631,9 +2648,17 @@
           "disabled": false,
           "folded": false,
           "type": "BuiltinCommonInstructions::JsCode",
-          "inlineCode": "var servoid = 'http://localhost:3000'\n\nobjects.forEach(q => {\n    var g = z => q.getVariables().get(z).getAsNumber();\n    var r = z => q.getVariables().get(z).getAsString();\n    var s = (z, p) => q.getVariables().get(z).setNumber(p);\n    if(g('doRegister')){\n        fetch('http://127.0.0.1:8080/game/create_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid'),\n                state: 'off',\n                trap: 'spikes',\n                color: '#ff5733',\n                text: 'Spikes'\n            })\n        }).then(function(response) {\n            s('doRegister', 0)\n            s('initialised', 1)\n            //alert(JSON.stringify(response.json()));\n        }).catch(function(e){\n            //alert(e.message);\n        })\n    }\n})",
+          "inlineCode": "var servoid = 'http://localhost:8080'\n\nobjects.forEach(q => {\n    var g = z => q.getVariables().get(z).getAsNumber();\n    var r = z => q.getVariables().get(z).getAsString();\n    var s = (z, p) => q.getVariables().get(z).setNumber(p);\n    if(g('doRegister')){\n        fetch(servoid + '/game/create_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid'),\n                state: 'ready',\n                trap: 'spikes',\n                color: '#ff5733',\n                text: 'Spikes'\n            })\n        }).then(function(response) {\n            s('doRegister', 0)\n            s('initialised', 1)\n            alert('spieks registered')\n        }).catch(function(e){\n            //alert(e.message);\n        })\n    }else if(g('doRemove') == 1){\n        fetch(servoid + '/game/destroy_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid')\n            })\n        }).then(function(response){\n            s('doRemove', 0);\n            s('pufferfish', 1);\n            alert(g('doRemove'));\n            alert('spieks deregistered');\n        })\n    }else{\n        fetch(servoid + '/game/trap_status/' + r('uuid')).then(res => res.json()).then(function(waffle){\n            alert('glarghbalg' + waffle);\n        })\n    }\n})",
           "parameterObjects": "Spikes",
           "useStrict": true
+        },
+        {
+          "disabled": false,
+          "folded": false,
+          "type": "BuiltinCommonInstructions::Standard",
+          "conditions": [],
+          "actions": [],
+          "events": []
         }
       ],
       "layers": [
