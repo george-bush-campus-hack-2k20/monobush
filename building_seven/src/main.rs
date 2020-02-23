@@ -1,6 +1,6 @@
 #![allow(dead_code,unused_imports)]
 #[macro_use] extern crate nickel;
-use hyper::header::{AccessControlAllowOrigin, AccessControlAllowHeaders};
+use hyper::header::{AccessControlAllowOrigin, AccessControlAllowHeaders, AccessControlAllowMethods};
 use hyper::method::Method;
 use nickel::{Request, Response, MiddlewareResult};
 use crate::nickel::{Nickel, HttpRouter, QueryString, status::StatusCode, MediaType};
@@ -55,6 +55,7 @@ struct Trap {
 fn enable_cors<'mw>(_req: &mut Request, mut res: Response<'mw>) -> MiddlewareResult<'mw> {
     // Set appropriate headers
     res.set(AccessControlAllowOrigin::Any);
+    res.set(AccessControlAllowMethods(vec![Method::Get, Method::Post]));
     res.set(AccessControlAllowHeaders(vec![
         // Hyper uses the `unicase::Unicase` type to ensure comparisons are done
         // case-insensitively. Here, we use `into()` to convert to one from a `&str`
