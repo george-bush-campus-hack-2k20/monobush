@@ -35,7 +35,6 @@ impl UserSession {
 	}
     }
 }
-
 // any request that only takes a uuid uses the following
 #[derive(Serialize, Deserialize)]
 struct UuidRequest {
@@ -163,8 +162,47 @@ fn main() {
     }
 
     {
-	let trap_map = trap_map_master.clone();
-	let user_trap_map = user_trap_map_master.clone();
+        let trap_map = trap_map_master.clone();
+        let user_trap_map = user_trap_map_master.clone();
+        server.post("/client/activate_trap", middleware! { |request, mut response| {
+            response.set(MediaType::Json);
+            // clientid
+            let client = try_with!(response, request.json_as::<UuidRequest>().map_err(|e| (StatusCode::BadRequest, e)));
+            // get trap of the client
+            let user_trap_map_lock = user_trap_map.lock().unwrap();
+            match user_trap_map_lock.get(&client.id) {
+                Some(trap_id) => {
+                    let mut trap_map_lock = trap_map.lock().unwrap();
+                    trap_map_lock.get_mut(trap_id).unwrap().state = "activated".to_string();
+                }
+                _ => (),
+            }
+            ""
+        }});
+    }
+    
+    {
+
+        #[derive(Serialize, Deserialize)]
+        struct OutputThingInnit {
+            activated: String
+        }
+        let trap_map = trap_map_master.clone();
+        server.get("/game/trap_status/:id", middleware! { |request, mut response| {
+            let id = request.param("id").unwrap().to_string();
+	    let trap_map_lock = trap_map.lock().unwrap();
+	    let state = &trap_map_lock.get(&id).unwrap().state;
+	    if state == "activated" {
+		let oo = OutputThingInnit { activated: "true".to_string() };
+		return response.send(serde_json::to_string(&oo).unwrap());
+	    }
+	    ""
+	}});
+}
+
+{
+    let trap_map = trap_map_master.clone();
+    let user_trap_map = user_trap_map_master.clone();
 	server.post("/game/destroy_trap", middleware! { |request, mut response| {
 	    response.set(MediaType::Json);
 	    response.set(StatusCode::NotFound);
