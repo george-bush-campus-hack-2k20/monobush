@@ -17,8 +17,8 @@ use std::thread;
 mod logging;
 
 
-const MAX_HEARTBEAT_INTERVAL: i64 = 1000; // in ms
-const HEARTBEAT_CULL_INTERVAL: u64 = 500;  // "
+const MAX_HEARTBEAT_INTERVAL: i64 = 2500; // in ms
+const HEARTBEAT_CULL_INTERVAL: u64 = 100;  // "
 
 struct UserSession {
     created_at: DateTime<Utc>,
@@ -70,18 +70,20 @@ fn main() {
 		let mut user_trap_map_lock = user_trap_map.lock().unwrap();
 		let mut to_remove_queue = Vec::new();
 		for user in users_lock.iter().map(|x| x.1) {
-		    if user.last_heartbeat.timestamp_millis() - c_time > MAX_HEARTBEAT_INTERVAL {
+		    debug!("Considering UUID {}", user.uuid);
+		    if c_time - user.last_heartbeat.timestamp_millis() > MAX_HEARTBEAT_INTERVAL {
 			// remove them
 			to_remove_queue.push(user.uuid.clone());
 		    }
 		}
+		debug!("UUIDs to be culled: {:?}", to_remove_queue);
 		for to_remove in to_remove_queue {
 		    debug!("Deleting UUID {}", to_remove);
 		    users_lock.remove(&to_remove);
 		    user_trap_map_lock.remove(&to_remove);
 		}
 	    }
-	    // thread::sleep(std::time::Duration::from_millis(HEARTBEAT_CULL_INTERVAL));
+	    thread::sleep(std::time::Duration::from_millis(HEARTBEAT_CULL_INTERVAL));
 	}});
     }
     let mut server = Nickel::new();
