@@ -230,13 +230,14 @@ fn main() {
 	    response.set(StatusCode::NotFound);
 	    let client = try_with!(response, request.json_as::<UuidRequest>().map_err(|e| (StatusCode::BadRequest, e)));
 	    assert!(Uuid::parse_str(&client.id).is_ok());
+        // lol
 	    let mut trap_map_lock = trap_map.lock().unwrap();
 	    trap_map_lock.remove(&client.id);
 	    // also remove it if it's in the userid <-> trapid mapping
-	    let uuid_to_remove = {
-		let user_trap_map_lock = user_trap_map.lock().unwrap();
-		let t_vec: Vec<&String> = user_trap_map_lock.iter().filter(|x| x.1 == &client.id).map(|x| x.0).collect();
-		t_vec[0].clone()
+        let uuid_to_remove = {
+            let user_trap_map_lock = user_trap_map.lock().unwrap();
+            let t_vec: Vec<&String> = user_trap_map_lock.iter().filter(|x| x.1 == &client.id).map(|x| x.0).collect();
+            t_vec[0].clone()
 	    };
 	    let mut user_trap_map_lock = user_trap_map.lock().unwrap();
 	    user_trap_map_lock.remove(&uuid_to_remove);
