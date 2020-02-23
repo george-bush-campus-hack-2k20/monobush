@@ -234,7 +234,8 @@ fn main() {
 	    let mut trap_map_lock = trap_map.lock().unwrap();
 	    trap_map_lock.remove(&client.id);
 	    // also remove it if it's in the userid <-> trapid mapping
-	    response.set(StatusCode::from_u16(200));
+	    response.set(StatusCode::Ok);
+        ""
 	}});
     }
     server.listen("127.0.0.1:8080").unwrap();
