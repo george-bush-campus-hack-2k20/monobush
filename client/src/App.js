@@ -8,7 +8,7 @@ import { Spinner } from "./pages/Spinner";
 import { Trap } from "./pages/traps";
 
 var client = axios.create({
-  baseURL: "http://localhost:8080/",
+  baseURL: "http://18.130.245.224/",
   timeout: 1000
 });
 
