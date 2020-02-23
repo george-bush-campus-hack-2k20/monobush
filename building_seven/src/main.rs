@@ -9,6 +9,7 @@ use log::{info, trace, warn, debug};
 use crate::nickel::JsonBody;
 use fern;
 use serde_derive::{Serialize, Deserialize};
+use serde_json;
 mod logging;
 
 
@@ -29,7 +30,7 @@ impl UserSession {
 }
 
 #[derive(Serialize, Deserialize)]
-struct TrapReq {
+struct Trap {
     id: String,
     state: String,
     trap: String,
@@ -86,16 +87,32 @@ fn main() {
 
     server.post("/game/create_trap", middleware! { |request, mut response| {
 	// check the req
-	let trap_req = try_with!(response, request.json_as::<TrapReq>().map_err(|e| (StatusCode::BadRequest, e)));
+	let trap_req = try_with!(response, request.json_as::<Trap>().map_err(|e| (StatusCode::BadRequest, e)));
 	response.set(MediaType::Json);
+	let mut trap_pool_write = trap_pool.write().unwrap();
+	trap_pool_write.push(trap_req);
+	response.set(StatusCode::Accepted);
     }});
 
     server.post("/game/destroy_trap", middleware! { |request, mut response| {
     }});
 
     server.get("/game/trap_status/:id", middleware! { |request, mut response| {
+	response.set(MediaType::Json);
 	if let Some(id) = request.param("id") {
 	    // attempt to get the trap info
+	    let trap_pool_read = trap_pool.read().unwrap();
+	    let trap_with_id = trap_pool_read.iter().filter(|x| x.id == id).next();
+	    match trap_with_id {
+		Some(x) => return serde_json::to_value(x).map_err(|e| (StatusCode::InternalServerError, e)),
+		_ => response.set(StatusCode::NoContent),
+	    };
+	    // try in the assigned ones
+	    let trap_assigned_read = trap_allocated.read().unwrap().iter().filter(|v| v.1.id == id).next();
+	    match trap_assigned_read {
+		Some(x) => return serde_json::to_value(x).map_err(|e| (StatusCode::InternalServerError, e)),
+		_ => response.set(StatusCode::NoContent),
+	    };
 	}
     }});
 
