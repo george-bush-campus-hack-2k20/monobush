@@ -11,7 +11,6 @@ const activateTrap = (client, userId) => async () => {
 export const Spikes = ({ userId, client, styles, text }) => {
   return (
     <div id="controller" className="electricity" styles={styles}>
-      <p>Spikes</p>
       <p>{text}</p>
       {/*
       <ArcadeButton onClick={() => console.log("Clicked!")} />
