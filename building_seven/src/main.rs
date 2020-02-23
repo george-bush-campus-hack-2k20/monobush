@@ -1,6 +1,8 @@
 #![allow(dead_code,unused_imports)]
 #[macro_use] extern crate nickel;
 use hyper::header::{AccessControlAllowOrigin, AccessControlAllowHeaders};
+use hyper::method::Method;
+use nickel::{Request, Response, MiddlewareResult};
 use crate::nickel::{Nickel, HttpRouter, QueryString, status::StatusCode, MediaType};
 use std::sync::{Arc, Mutex, RwLock};
 use std::collections::HashMap;
