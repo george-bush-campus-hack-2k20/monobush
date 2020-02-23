@@ -96,10 +96,7 @@ fn main() {
 		response.set(StatusCode::Accepted);
 	    }
 	}
-	""
     }});
-
-    server.post("/game/create_trap", 
     
     info!("Endpoints configured");
     server.listen("127.0.0.1:3000").unwrap();
