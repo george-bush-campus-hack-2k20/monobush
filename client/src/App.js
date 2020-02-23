@@ -30,8 +30,7 @@ class App extends React.Component {
     let data;
     try {
       const response = await client.post("/client/heartbeat", {
-        body: { id: this.state.uuid },
-        mode: 'no-cors'
+        id: this.state.uuid
       });
       console.log(response);
       data = response.data;
@@ -58,7 +57,13 @@ class App extends React.Component {
       case "waiting":
         return <Spinner />;
       case "playing":
-        return <Trap trapData={this.state.trap} />;
+        return (
+          <Trap
+            userId={this.state.uuid}
+            client={client}
+            trapData={this.state.trap}
+          />
+        );
       default:
         console.err("Something went terribly wrong...");
     }

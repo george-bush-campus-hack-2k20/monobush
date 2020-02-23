@@ -1,0 +1,1 @@
+/home/pringon/dev/projects/monobush/building_seven/target/release/building_seven: /home/pringon/dev/projects/monobush/building_seven/src/logging.rs /home/pringon/dev/projects/monobush/building_seven/src/main.rs

@@ -6,22 +6,13 @@ import { Spikes } from "./Spikes";
 import { Pendulum } from "./Pendulum";
 import { Electricity } from "./Electricity";
 
-export const Trap = ({ trapData }) => {
+export const Trap = ({ trapData, client, userId }) => {
   const { type, color, text } = trapData;
 
   const styles = {
     color
   };
 
-  switch (type) {
-    case "spikes":
-      return <Spikes styles={styles} text={text} />;
-    case "pendulum":
-      return <Pendulum styles={styles} text={text} />;
-    case "electricity":
-      return <Electricity styles={styles} text={text} />;
-    default:
-      console.err("Out of cheese!");
-      return <p>Out of cheese!</p>
-  }
+  return <Spikes client={client} styles={styles} text={text} />;
+  
 };
