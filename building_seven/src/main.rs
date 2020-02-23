@@ -83,22 +83,18 @@ fn main() {
 	let users = users_master.clone();
 	let user_trap_map = user_trap_map_master.clone();
 	thread::spawn(move || { loop {
-	    debug!("Entering cull loop...");
 	    {
 		let c_time = Utc::now().timestamp_millis();
 		let mut users_lock = users.lock().unwrap();
 		let mut user_trap_map_lock = user_trap_map.lock().unwrap();
 		let mut to_remove_queue = Vec::new();
 		for user in users_lock.iter().map(|x| x.1) {
-		    debug!("Considering UUID {}", user.uuid);
 		    if c_time - user.last_heartbeat.timestamp_millis() > MAX_HEARTBEAT_INTERVAL {
 			// remove them
 			to_remove_queue.push(user.uuid.clone());
 		    }
 		}
-		debug!("UUIDs to be culled: {:?}", to_remove_queue);
 		for to_remove in to_remove_queue {
-		    debug!("Deleting UUID {}", to_remove);
 		    users_lock.remove(&to_remove);
 		    user_trap_map_lock.remove(&to_remove);
 		}
@@ -135,7 +131,7 @@ fn main() {
 			// we can assign them one
 			// unallocated traps
 			let trap_map_lock = &trap_map.lock().unwrap();
-			let mut valid_traps = trap_map_lock.iter().filter(|x| users_trap_map_lock.get_key_value(x.0).is_none());
+			let mut valid_traps = trap_map_lock.iter().filter(|x| users_trap_map_lock.values().all(|y| y != x.0));
 			match valid_traps.next() {
 			    Some(trap_id_trap) => {
 				// now create the user <-> trap mapping
@@ -156,6 +152,7 @@ fn main() {
 		0 => {
 		    // they didn't exist before now, just create them
 		    users_lock.insert(client.id.clone(), UserSession::new(&client.id));
+            info!("Created new user uuid: {}", client.id);
             return response.send("{ \"state\": \"waiting\"}");
 		}
 		_ => ()
@@ -176,9 +173,10 @@ fn main() {
 	    let client = try_with!(response, request.json_as::<Trap>().map_err(|e| (StatusCode::BadRequest, e)));
 	    assert!(Uuid::parse_str(&client.id).is_ok());
 	    // looks good, fine, add it to the traps
+        info!("Creating trap with uuid: {}, name: {}", client.id, client.text);
 	    let mut trap_map_lock = trap_map.lock().unwrap();
 	    trap_map_lock.insert(client.id.clone(), client);
-	    response.set(StatusCode::from_u16(200));
+	    response.set(StatusCode::Ok);
 	    ""
 	}});
     }
@@ -195,7 +193,9 @@ fn main() {
             match user_trap_map_lock.get(&client.id) {
                 Some(trap_id) => {
                     let mut trap_map_lock = trap_map.lock().unwrap();
-                    trap_map_lock.get_mut(trap_id).unwrap().state = "true".to_string();
+                    let mut l_handle = trap_map_lock.get_mut(trap_id).unwrap();
+                    l_handle.state = "true".to_string();
+                    info!("Activating trap uuid: {}, name: {}", l_handle.id, l_handle.text);
                 }
                 _ => (),
             }
@@ -237,5 +237,5 @@ fn main() {
         ""
 	}});
     }
-    server.listen("127.0.0.1:8080").unwrap();
+    server.listen("0.0.0.0:8080").unwrap();
 }

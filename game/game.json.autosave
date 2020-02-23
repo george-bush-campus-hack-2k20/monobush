@@ -731,7 +731,27 @@
           "stringProperties": [],
           "initialVariables": [
             {
-              "name": "Activated",
+              "name": "doRegister",
+              "value": "0"
+            },
+            {
+              "name": "doActivate",
+              "value": "0"
+            },
+            {
+              "name": "doRemove",
+              "value": "0"
+            },
+            {
+              "name": "initialised",
+              "value": "0"
+            },
+            {
+              "name": "uuid",
+              "value": "8f7d6873-652b-42d2-838a-ac3006438379"
+            },
+            {
+              "name": "pufferfish",
               "value": "0"
             }
           ]
@@ -2340,127 +2360,6 @@
             {
               "type": {
                 "inverted": false,
-                "value": "CollisionNP"
-              },
-              "parameters": [
-                "Bush",
-                "electrical",
-                "",
-                "",
-                ""
-              ],
-              "subInstructions": []
-            }
-          ],
-          "actions": [
-            {
-              "type": {
-                "inverted": false,
-                "value": "ModVarObjet"
-              },
-              "parameters": [
-                "electrical",
-                "Activated",
-                "=",
-                "1"
-              ],
-              "subInstructions": []
-            }
-          ],
-          "events": [
-            {
-              "disabled": false,
-              "folded": false,
-              "type": "BuiltinCommonInstructions::Standard",
-              "conditions": [
-                {
-                  "type": {
-                    "inverted": true,
-                    "value": "VarObjet"
-                  },
-                  "parameters": [
-                    "electrical",
-                    "Activated",
-                    "=",
-                    "0"
-                  ],
-                  "subInstructions": []
-                }
-              ],
-              "actions": [
-                {
-                  "type": {
-                    "inverted": false,
-                    "value": "ChangeAnimation"
-                  },
-                  "parameters": [
-                    "electrical",
-                    "=",
-                    "0"
-                  ],
-                  "subInstructions": []
-                }
-              ],
-              "events": []
-            },
-            {
-              "disabled": false,
-              "folded": false,
-              "type": "BuiltinCommonInstructions::Standard",
-              "conditions": [
-                {
-                  "type": {
-                    "inverted": false,
-                    "value": "VarObjet"
-                  },
-                  "parameters": [
-                    "electrical",
-                    "Activated",
-                    "=",
-                    "1"
-                  ],
-                  "subInstructions": []
-                }
-              ],
-              "actions": [
-                {
-                  "type": {
-                    "inverted": false,
-                    "value": "ChangeAnimation"
-                  },
-                  "parameters": [
-                    "electrical",
-                    "=",
-                    "1"
-                  ],
-                  "subInstructions": []
-                },
-                {
-                  "type": {
-                    "inverted": false,
-                    "value": "ModVarObjet"
-                  },
-                  "parameters": [
-                    "electrical",
-                    "Activated",
-                    "=",
-                    "0"
-                  ],
-                  "subInstructions": []
-                }
-              ],
-              "events": []
-            }
-          ]
-        },
-        {
-          "disabled": false,
-          "folded": false,
-          "type": "BuiltinCommonInstructions::Standard",
-          "conditions": [
-            {
-              "type": {
-                "inverted": false,
                 "value": "VarObjet"
               },
               "parameters": [
@@ -2591,6 +2490,66 @@
             {
               "type": {
                 "inverted": false,
+                "value": "Distance"
+              },
+              "parameters": [
+                "electrical",
+                "Bush",
+                "2000",
+                ""
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "VarObjet"
+              },
+              "parameters": [
+                "electrical",
+                "initialised",
+                "=",
+                "0"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "actions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "ModVarObjet"
+              },
+              "parameters": [
+                "electrical",
+                "doRegister",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "ResetObjectTimer"
+              },
+              "parameters": [
+                "electrical",
+                "\"spunk\""
+              ],
+              "subInstructions": []
+            }
+          ],
+          "events": []
+        },
+        {
+          "disabled": false,
+          "folded": false,
+          "type": "BuiltinCommonInstructions::Standard",
+          "conditions": [
+            {
+              "type": {
+                "inverted": false,
                 "value": "VarObjet"
               },
               "parameters": [
@@ -2647,8 +2606,69 @@
         {
           "disabled": false,
           "folded": false,
+          "type": "BuiltinCommonInstructions::Standard",
+          "conditions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "VarObjet"
+              },
+              "parameters": [
+                "electrical",
+                "initialised",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "ObjectTimer"
+              },
+              "parameters": [
+                "electrical",
+                "\"spunk\"",
+                "60"
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "VarObjet"
+              },
+              "parameters": [
+                "electrical",
+                "pufferfish",
+                "=",
+                "0"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "actions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "ModVarObjet"
+              },
+              "parameters": [
+                "electrical",
+                "doRemove",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "events": []
+        },
+        {
+          "disabled": false,
+          "folded": false,
           "type": "BuiltinCommonInstructions::JsCode",
-          "inlineCode": "var servoid = 'http://localhost:8080'\n\nobjects.forEach(q => {\n    var g = z => q.getVariables().get(z).getAsNumber();\n    var r = z => q.getVariables().get(z).getAsString();\n    var s = (z, p) => q.getVariables().get(z).setNumber(p);\n    if(g('doRegister')){\n        fetch(servoid + '/game/create_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid'),\n                state: 'ready',\n                trap: 'spikes',\n                color: '#ff5733',\n                text: 'Spikes'\n            })\n        }).then(function(response) {\n            s('doRegister', 0)\n            s('initialised', 1)\n            alert('spieks registered')\n        }).catch(function(e){\n            //alert(e.message);\n        })\n    }else if(g('doRemove') == 1){\n        fetch(servoid + '/game/destroy_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid')\n            })\n        }).then(function(response){\n            s('doRemove', 0);\n            s('pufferfish', 1);\n            alert(g('doRemove'));\n            alert('spieks deregistered');\n        })\n    }else{\n        fetch(servoid + '/game/trap_status/' + r('uuid')).then(res => res.json()).then(function(waffle){\n            alert('glarghbalg' + waffle.activated);\n        })\n    }\n})",
+          "inlineCode": "var servoid = 'http://localhost:8080'\n\nobjects.forEach(q => {\n    var g = z => q.getVariables().get(z).getAsNumber();\n    var r = z => q.getVariables().get(z).getAsString();\n    var s = (z, p) => q.getVariables().get(z).setNumber(p);\n    if(g('doRegister')){\n        fetch(servoid + '/game/create_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid'),\n                state: 'ready',\n                trap: 'spikes',\n                color: '#ff5733',\n                text: 'Spikes'\n            })\n        }).then(function(response) {\n            s('doRegister', 0)\n            s('initialised', 1)\n        }).catch(function(e){\n            //alert(e.message);\n        })\n    }else if(g('doRemove') == 1){\n        fetch(servoid + '/game/destroy_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid')\n            })\n        }).then(function(response){\n            s('doRemove', 0);\n            s('pufferfish', 1);\n            alert(g('doRemove'));\n        })\n    }else{\n        fetch(servoid + '/game/trap_status/' + r('uuid')).then(res => res.json()).then(function(waffle){\n            if (waffle.activated == \"true\") s('doActivate',1);\n        })\n    }\n})",
           "parameterObjects": "Spikes",
           "useStrict": true
         },
@@ -2656,8 +2676,140 @@
           "disabled": false,
           "folded": false,
           "type": "BuiltinCommonInstructions::Standard",
-          "conditions": [],
-          "actions": [],
+          "conditions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "VarObjet"
+              },
+              "parameters": [
+                "electrical",
+                "doActivate",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "CollisionNP"
+              },
+              "parameters": [
+                "Bush",
+                "electrical",
+                "",
+                "",
+                ""
+              ],
+              "subInstructions": []
+            }
+          ],
+          "actions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "ModVarObjet"
+              },
+              "parameters": [
+                "Bush",
+                "Life",
+                "=",
+                "0"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "events": []
+        },
+        {
+          "disabled": false,
+          "folded": false,
+          "type": "BuiltinCommonInstructions::JsCode",
+          "inlineCode": "var servoid = 'http://localhost:8080'\n\nobjects.forEach(q => {\n    var g = z => q.getVariables().get(z).getAsNumber();\n    var r = z => q.getVariables().get(z).getAsString();\n    var s = (z, p) => q.getVariables().get(z).setNumber(p);\n    if(g('doRegister')){\n        fetch(servoid + '/game/create_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid'),\n                state: 'ready',\n                trap: 'electrical',\n                color: '#ff5733',\n                text: 'Lazers!'\n            })\n        }).then(function(response) {\n            s('doRegister', 0)\n            s('initialised', 1)\n        }).catch(function(e){\n            //alert(e.message);\n        })\n    }else if(g('doRemove') == 1){\n        fetch(servoid + '/game/destroy_trap', {\n            method: 'POST',\n            body: JSON.stringify({\n                id: r('uuid')\n            })\n        }).then(function(response){\n            s('doRemove', 0);\n            s('pufferfish', 1);\n            alert(g('doRemove'));\n        })\n    }else{\n        fetch(servoid + '/game/trap_status/' + r('uuid')).then(res => res.json()).then(function(waffle){\n            if (waffle.activated == \"true\") s('doActivate',1);\n        })\n    }\n})",
+          "parameterObjects": "electrical",
+          "useStrict": true
+        },
+        {
+          "disabled": false,
+          "folded": false,
+          "type": "BuiltinCommonInstructions::Standard",
+          "conditions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "VarObjet"
+              },
+              "parameters": [
+                "electrical",
+                "doActivate",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "actions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "ChangeAnimation"
+              },
+              "parameters": [
+                "electrical",
+                "=",
+                "1"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "events": []
+        },
+        {
+          "disabled": false,
+          "folded": false,
+          "type": "BuiltinCommonInstructions::Standard",
+          "conditions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "Sprite"
+              },
+              "parameters": [
+                "electrical",
+                ">=",
+                "5"
+              ],
+              "subInstructions": []
+            }
+          ],
+          "actions": [
+            {
+              "type": {
+                "inverted": false,
+                "value": "ChangeAnimation"
+              },
+              "parameters": [
+                "electrical",
+                "=",
+                "0"
+              ],
+              "subInstructions": []
+            },
+            {
+              "type": {
+                "inverted": false,
+                "value": "ModVarObjet"
+              },
+              "parameters": [
+                "electrical",
+                "doActivate",
+                "=",
+                "0"
+              ],
+              "subInstructions": []
+            }
+          ],
           "events": []
         }
       ],
