@@ -1,15 +1,8 @@
 [package]
 name = "building_seven"
-version = "0.1.0"
-authors = ["Alex Eyre <alex@turm.pw>"]
+version = "1.0.0"
+authors = ["Alex Eyre <alex@turm.pw>", "Kajetan Champlewski <kajetan@kch.dev>", "Daniel Goje <gojedan98@gmail.com>", "Ioana Simion <ioanasimioni@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies.nickel]
-version = "*"
-rustc-serialize = "*"
-features = ["unstable"]
 
 [dependencies]
 serde = "1.0.104"
@@ -19,5 +12,5 @@ chrono = "0.4.0"
 uuid = "0.8.1"
 fern = "0.5.9"
 log = "0.4.8"
-nickel_cors = "0.3.3"
 hyper = "*"
+nickel = "*"
